@@ -1,0 +1,6 @@
+@BuccaneerBanterAPI_HostAddress = http://localhost:5269
+
+GET {{BuccaneerBanterAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
