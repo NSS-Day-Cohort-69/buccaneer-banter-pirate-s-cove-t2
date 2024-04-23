@@ -345,6 +345,37 @@ var CreatePirateDTO = (Pirate pirate) =>
     return pirateDTO;
 };
 
+var CreateFollowerDTO = (Follower follower) =>
+{
+    Pirate followedPirate = pirates.FirstOrDefault(pirate => pirate.Id == follower.PirateId);
+    Ship foundShip = ships.FirstOrDefault(ship => ship.Id == followedPirate.ShipId);
+    Rank foundRank = ranks.FirstOrDefault(rank => rank.Id == followedPirate.RankId);
+    
+    FollowerDTO followerDTO = new FollowerDTO()
+    {
+        Id = follower.Id,
+        PirateId = follower.PirateId,
+        PirateFollower = new PirateFollowerDTO()
+        {
+            Id = followedPirate.Id,
+            Name = followedPirate.Name,
+            Ship = new ShipDTO()
+            {
+                Id = foundShip.Id,
+                Name = foundShip.Name
+            },
+            Rank = new RankDTO()
+            {
+                Id = foundRank.Id,
+                Name = foundRank.Name
+            }
+        },
+        FollowerId = follower.FollowerId
+    };
+
+    return followerDTO;
+};
+
 /* Endpoints:
 - gets all posts with each pirate who posted the post and the related pirate follower (if not null) 
 (- gets post by id)
@@ -376,6 +407,21 @@ app.MapGet("api/pirates", (int? pirateId) =>
     }
 
     return Results.Ok(pirateDTOs);
+});
+
+app.MapGet("api/followers/{followerId}", (int followerId) =>
+{
+    Pirate foundPirate = pirates.FirstOrDefault(pirate => pirate.Id == followerId);
+    if (foundPirate == null)
+    {
+        return Results.BadRequest();
+    }
+
+    List<Follower> foundFollowers = followers.Where(follower => follower.FollowerId == foundPirate.Id).ToList();
+    
+    List<FollowerDTO> followerDTOs = foundFollowers.Select(follower => CreateFollowerDTO(follower)).ToList();
+
+    return Results.Ok(followerDTOs);
 });
 
 app.Run();
