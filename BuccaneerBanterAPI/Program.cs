@@ -516,6 +516,32 @@ app.MapGet("api/followers/{followerId}", (int followerId) =>
     return Results.Ok(followerDTOs);
 });
 
+app.MapGet("api/login", (string? name, string? shipName) => 
+    //"/login/name={name}/shipname={shipname}"
+{
+    if (name == null|| shipName == null)
+    {
+        return Results.NotFound();
+    }
+    Pirate pirate = pirates.FirstOrDefault(p => p.Name == name);
+    if (pirate == null) 
+    {
+        return Results.BadRequest();
+    }
+    Ship foundShip = ships.FirstOrDefault(s => s.Id == pirate.ShipId);
+    if (foundShip == null)
+    {
+        return Results.BadRequest();
+    }
+    if (foundShip.Name != shipName) 
+    {
+        return Results.BadRequest();
+    }
+    return Results.Ok(new PirateLoginDTO
+    {
+        Id = pirate.Id
+    });
+});
 app.Run();
 
 
