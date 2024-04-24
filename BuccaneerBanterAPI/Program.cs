@@ -418,7 +418,7 @@ var CreateFollowerDTO = (Follower follower) =>
     Pirate followedPirate = pirates.FirstOrDefault(pirate => pirate.Id == follower.PirateId);
     Ship foundShip = ships.FirstOrDefault(ship => ship.Id == followedPirate.ShipId);
     Rank foundRank = ranks.FirstOrDefault(rank => rank.Id == followedPirate.RankId);
-    
+
     FollowerDTO followerDTO = new FollowerDTO()
     {
         Id = follower.Id,
@@ -452,7 +452,7 @@ var CreateFollowerDTO = (Follower follower) =>
 - get favorite pirates(followed) of current pirate
 - get pirate by name and ship name for login
 */
-app.MapGet("/posts", () =>
+app.MapGet("/api/posts", () =>
 {
     return stories.Select(p =>
     {
@@ -465,8 +465,7 @@ app.MapGet("/posts", () =>
             Pirate = pirate == null ? null : new PiratePostDTO
             {
                 Id = pirate.Id,
-                Name = pirate.Name,
-                Followed = pirate.Followed
+                Name = pirate.Name
 
             },
             Title = p.Title,
@@ -511,7 +510,7 @@ app.MapGet("api/followers/{followerId}", (int followerId) =>
     }
 
     List<Follower> foundFollowers = followers.Where(follower => follower.FollowerId == foundPirate.Id).ToList();
-    
+
     List<FollowerDTO> followerDTOs = foundFollowers.Select(follower => CreateFollowerDTO(follower)).ToList();
 
     return Results.Ok(followerDTOs);
