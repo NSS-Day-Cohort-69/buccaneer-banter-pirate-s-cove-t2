@@ -207,6 +207,81 @@ List<Ship> ships = new List<Ship>()
         Name = "Blue Midnight"
     }
 };
+List<Follower> followers = new List<Follower>()
+{
+    new Follower()
+    {
+        Id = 1,
+        PirateId = 1,
+        FollowerId = 2
+    },
+    new Follower()
+    {
+        Id = 2,
+        PirateId = 1,
+        FollowerId = 3
+    },
+    new Follower()
+    {
+        Id = 3,
+        PirateId = 2,
+        FollowerId = 1
+    },
+    new Follower()
+    {
+        Id = 4,
+        PirateId = 2,
+        FollowerId = 3
+    },
+    new Follower()
+    {
+        Id = 5,
+        PirateId = 3,
+        FollowerId = 1
+    },
+    new Follower()
+    {
+        Id = 6,
+        PirateId = 3,
+        FollowerId = 2
+    },
+    new Follower()
+    {
+        Id = 7,
+        PirateId = 50,
+        FollowerId = 2
+    },
+    new Follower()
+    {
+        Id = 8,
+        PirateId = 50,
+        FollowerId = 3
+    },
+    new Follower()
+    {
+        Id = 9,
+        PirateId = 1,
+        FollowerId = 1
+    },
+    new Follower()
+    {
+        Id = 10,
+        PirateId = 1,
+        FollowerId = 1
+    },
+    new Follower()
+    {
+        Id = 13,
+        PirateId = 50,
+        FollowerId = 5
+    },
+    new Follower()
+    {
+        Id = 14,
+        PirateId = 7,
+        FollowerId = 5
+    }
+};
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -270,6 +345,37 @@ var CreatePirateDTO = (Pirate pirate) =>
     return pirateDTO;
 };
 
+var CreateFollowerDTO = (Follower follower) =>
+{
+    Pirate followedPirate = pirates.FirstOrDefault(pirate => pirate.Id == follower.PirateId);
+    Ship foundShip = ships.FirstOrDefault(ship => ship.Id == followedPirate.ShipId);
+    Rank foundRank = ranks.FirstOrDefault(rank => rank.Id == followedPirate.RankId);
+    
+    FollowerDTO followerDTO = new FollowerDTO()
+    {
+        Id = follower.Id,
+        PirateId = follower.PirateId,
+        Pirate = new PirateFollowerDTO()
+        {
+            Id = followedPirate.Id,
+            Name = followedPirate.Name,
+            Ship = new ShipDTO()
+            {
+                Id = foundShip.Id,
+                Name = foundShip.Name
+            },
+            Rank = new RankDTO()
+            {
+                Id = foundRank.Id,
+                Name = foundRank.Name
+            }
+        },
+        FollowerId = follower.FollowerId
+    };
+
+    return followerDTO;
+};
+
 /* Endpoints:
 - gets all posts with each pirate who posted the post and the related pirate follower (if not null) 
 (- gets post by id)
@@ -301,6 +407,21 @@ app.MapGet("api/pirates", (int? pirateId) =>
     }
 
     return Results.Ok(pirateDTOs);
+});
+
+app.MapGet("api/followers/{followerId}", (int followerId) =>
+{
+    Pirate foundPirate = pirates.FirstOrDefault(pirate => pirate.Id == followerId);
+    if (foundPirate == null)
+    {
+        return Results.BadRequest();
+    }
+
+    List<Follower> foundFollowers = followers.Where(follower => follower.FollowerId == foundPirate.Id).ToList();
+    
+    List<FollowerDTO> followerDTOs = foundFollowers.Select(follower => CreateFollowerDTO(follower)).ToList();
+
+    return Results.Ok(followerDTOs);
 });
 
 app.Run();
