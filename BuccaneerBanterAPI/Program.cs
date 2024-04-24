@@ -1,3 +1,4 @@
+using System.Net;
 using BuccaneerBanterAPI.Models;
 using BuccaneerBanterAPI.Models.DTOs;
 
@@ -513,6 +514,32 @@ app.MapGet("api/followers/{followerId}", (int followerId) =>
     List<FollowerDTO> followerDTOs = foundFollowers.Select(follower => CreateFollowerDTO(follower)).ToList();
 
     return Results.Ok(followerDTOs);
+});
+
+app.MapPost("api/followers", (FollowPirateDTO Follow) =>
+{
+    Pirate pirateFollowed = pirates.FirstOrDefault(pirate => pirate.Id == Follow.PirateId);
+    Pirate pirateFollowing = pirates.FirstOrDefault(pirate => pirate.Id == Follow.FollowerId);
+    if (pirateFollowed == null | pirateFollowing == null)
+    {
+        return Results.BadRequest();
+    }
+
+    Follower existingFollower = followers.FirstOrDefault(follower => follower.PirateId == Follow.PirateId & follower.FollowerId == Follow.FollowerId);
+    if (existingFollower != null)
+    {
+        return Results.Conflict("You already follow this Pirate");
+    }
+
+    Follower newFollower = new Follower()
+    {
+        Id = followers.Max(follower => follower.Id) + 1,
+        PirateId = Follow.PirateId,
+        FollowerId = Follow.FollowerId
+    };
+
+    followers.Add(newFollower);
+    return Results.Created($"api/followers/{newFollower.Id}", newFollower);
 });
 
 app.Run();
