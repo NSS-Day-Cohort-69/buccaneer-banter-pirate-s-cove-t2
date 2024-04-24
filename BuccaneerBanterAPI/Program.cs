@@ -376,7 +376,7 @@ app.UseHttpsRedirection();
 
 var CreatePirateDTO = (Pirate pirate) =>
 {
-    Nationality? foundNationality = nationalities.FirstOrDefault(n => n.Id == pirate.NationalityId);
+    Nationality foundNationality = nationalities.FirstOrDefault(n => n.Id == pirate.NationalityId);
     Rank foundRank = ranks.FirstOrDefault(rank => rank.Id == pirate.RankId);
     Ship foundShip = ships.FirstOrDefault(ship => ship.Id == pirate.ShipId);
 
@@ -582,6 +582,7 @@ app.MapGet("api/login", (string? name, string? shipName) =>
         Id = pirate.Id
     });
 });
+
 app.Run();
 
 
