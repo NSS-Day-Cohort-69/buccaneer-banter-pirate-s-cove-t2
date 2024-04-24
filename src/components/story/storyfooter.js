@@ -6,7 +6,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { StoryContext } from "./storylist.js";
 
 const follow = (follower, following, action) => {
-  fetch(`http://localhost:8088/followers`, {
+  fetch(`http://localhost:5269/api/followers`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -19,17 +19,22 @@ const follow = (follower, following, action) => {
 };
 
 const unfollow = (follower, following, action) => {
-  fetch(
-    `http://localhost:8088/followers?followerId=${follower}&pirateId=${following}`
-  )
-    .then((response) => response.json())
-    .then((matchArray) => {
-      const matchId = matchArray[0].id;
+  const followObj = {
+    pirateId: following,
+    followerId: follower
+  }
+  
+  const deleteOptions = {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(followObj)
+  }
 
-      fetch(`http://localhost:8088/followers/${matchId}`, {
-        method: "DELETE",
-      }).then(() => action(parseInt(follower)));
-    });
+  return fetch("http://localhost:5269/api/followers", deleteOptions)
+    .then(res => res.json())
+    .then(() => action(parseInt(follower)))
 };
 
 const StoryFooter = ({ myFavoriteScallywags, getFavoritePirates }) => {
