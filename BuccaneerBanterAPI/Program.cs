@@ -355,7 +355,7 @@ var CreateFollowerDTO = (Follower follower) =>
     {
         Id = follower.Id,
         PirateId = follower.PirateId,
-        PirateFollower = new PirateFollowerDTO()
+        Pirate = new PirateFollowerDTO()
         {
             Id = followedPirate.Id,
             Name = followedPirate.Name,
