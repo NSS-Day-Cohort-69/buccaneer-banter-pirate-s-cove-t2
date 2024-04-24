@@ -1,6 +1,6 @@
-using System.Net;
 using BuccaneerBanterAPI.Models;
 using BuccaneerBanterAPI.Models.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -540,6 +540,20 @@ app.MapPost("api/followers", (FollowPirateDTO Follow) =>
 
     followers.Add(newFollower);
     return Results.Created($"api/followers/{newFollower.Id}", newFollower);
+});
+
+app.MapDelete("api/followers", ([FromBody] FollowPirateDTO Unfollow) =>
+{
+    Follower foundFollower = followers.FirstOrDefault(follower => follower.PirateId == Unfollow.PirateId & follower.FollowerId == Unfollow.FollowerId);
+    if (foundFollower == null)
+    {
+        return Results.BadRequest();
+    }
+
+    FollowerDTO deletedFollower = CreateFollowerDTO(foundFollower);
+
+    followers.Remove(foundFollower);
+    return Results.Ok(deletedFollower);
 });
 
 app.Run();
